@@ -1,0 +1,52 @@
+* {
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background-color: var(--color-primary);
+  color: var(--color-light);
+}
+
+.dark ::selection {
+  background-color: var(--color-primary);
+  color: var(--color-light);
+}
+
+/* Thumb Scroll */
+/* Firefox (uncomment to work in Firefox, although other properties will not work!)  */
+/** {
+  scrollbar-width: thin;
+  scrollbar-color: #111111 #FFFFFF;
+}*/
+
+/* Chrome, Edge and Safari */
+*::-webkit-scrollbar {
+  height: 4px;
+  width: 4px;
+}
+*::-webkit-scrollbar-track {
+  border-radius: 4px;
+  background: transparent;
+}
+
+*::-webkit-scrollbar-track:hover {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-track:active {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  transition: all 0.3s ease-in-out;
+  border-radius: 4px;
+  background-color: var(--color-primary);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-primary-hover);
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background-color: var(--color-primary-dark);
+}
