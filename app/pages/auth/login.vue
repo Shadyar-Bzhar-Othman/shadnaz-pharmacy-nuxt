@@ -59,12 +59,12 @@
           >
 
           <a
-            href="mailto:shadyar@qaysari.co"
+            href="mailto:shadyarbzhar22@gmail.com"
             target="_blank"
             class="flex items-center gap-1 text-light/80 hover:text-light transition-colors duration-300"
           >
             <Icon name="clarity:email-solid" class="size-4" />
-            <span>shadyar@qaysari.co</span>
+            <span>shadyarbzhar22@gmail.com</span>
           </a>
         </div>
       </div>

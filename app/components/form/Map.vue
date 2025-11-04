@@ -10,7 +10,7 @@
   </label>
 
   <MapboxMap
-    map-id="qaysari-map"
+    map-id="main-map"
     :options="{
       style: 'mapbox://styles/mapbox/standard',
       center: [props.long, props.lat],
@@ -91,7 +91,7 @@ const markerLong = ref(props.long);
 const marker = useMapboxMarkerRef("main-marker");
 
 // Functions
-useMapbox("qaysari-map", (map) => {
+useMapbox("main-map", (map) => {
   if (props.onlyView) return;
 
   map.on("click", (e: any) => {
