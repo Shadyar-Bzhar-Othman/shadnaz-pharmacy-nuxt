@@ -7,8 +7,10 @@ export const useStoreDataUtils = (
   t: ((key: string) => string) | null = null
 ) => {
   const roles: ComputedRef<KeyValue<number>[]> = computed(() => [
-    { key: 1, value: t ? t("admin") : "Admin" },
-    { key: 2, value: t ? t("user") : "User" },
+    { key: 1, value: t ? t("values.owner") : "Owner" },
+    { key: 2, value: t ? t("values.admin") : "Admin" },
+    { key: 3, value: t ? t("values.driver") : "Driver" },
+    { key: 4, value: t ? t("values.customer") : "Customer" },
   ]);
 
   const genders: ComputedRef<KeyValue<number>[]> = computed(() => [
@@ -19,6 +21,12 @@ export const useStoreDataUtils = (
   const actives: ComputedRef<KeyValue<boolean>[]> = computed(() => [
     { key: true, value: t ? t("values.active") : "Yes" },
     { key: false, value: t ? t("values.inactive") : "No" },
+  ]);
+
+  const langs: ComputedRef<KeyValue<string>[]> = computed(() => [
+    { key: "en", value: t ? t("values.en") : "English" },
+    { key: "ar", value: t ? t("values.ar") : "Arabic" },
+    { key: "ckb", value: t ? t("values.ckb") : "Kurdish" },
   ]);
 
   /** Generic helper: get key by label */
@@ -51,11 +59,16 @@ export const useStoreDataUtils = (
   const getActiveValue = (active: string) => getKeyByLabel(actives, active);
   const getActive = (active: boolean) => getLabelByKey(actives, active);
 
+  // Roles
+  const getLangValue = (lang: string) => getKeyByLabel(langs, lang);
+  const getLang = (lang: string) => getLabelByKey(langs, lang);
+
   return {
     // Values
     roles,
     genders,
     actives,
+    langs,
 
     // Functions
     getRoleValue,
@@ -64,5 +77,7 @@ export const useStoreDataUtils = (
     getGender,
     getActiveValue,
     getActive,
+    getLangValue,
+    getLang,
   };
 };

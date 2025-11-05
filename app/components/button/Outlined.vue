@@ -3,8 +3,9 @@
     :class="[
       width,
       disabled ? 'cursor-not-allowed' : 'cursor-pointer',
-      'text-center h-9 transition duration-300 bg-transparent text-text border-1 border-border hover:bg-border/50 px-4 py-2 flex justify-center items-center rounded-lg',
+      'text-center h-9 transition duration-300 bg-transparent text-text border border-border hover:bg-border/50 px-4 py-2 flex justify-center items-center rounded-lg',
     ]"
+    @click="handleClick"
   >
     <Icon v-if="loading" name="line-md:loading-twotone-loop" class="text-2xl" />
 

@@ -21,6 +21,7 @@ export const useUserStore = defineStore("users", () => {
 
   // Form
   const defaultForm: UserForm = {
+    city_id: 0,
     name: "",
     username: "",
     email: "",
@@ -28,7 +29,8 @@ export const useUserStore = defineStore("users", () => {
     password: "",
     img_path: undefined,
     is_active: 0,
-    active_lang: null,
+    active_lang: "",
+    role: 0,
   };
 
   // Pagination
@@ -49,7 +51,8 @@ export const useUserStore = defineStore("users", () => {
   const errors = ref<any>({});
 
   // Utils
-  const { actives } = useStoreDataUtils(t);
+  const filterStore = useFilterStore();
+  const { actives, langs, roles } = useStoreDataUtils(t);
   const { handleError, createFormData } = useStoreUtils();
   const { success } = useToast();
 
@@ -65,6 +68,21 @@ export const useUserStore = defineStore("users", () => {
   const queryString = ref("");
 
   const filters = computed<FilterType[]>(() => [
+    {
+      filterName: t("fields.city"),
+      filterKey: "city_id",
+      filterOptions: filterStore.cities,
+    },
+    {
+      filterName: t("fields.role"),
+      filterKey: "role",
+      filterOptions: roles.value,
+    },
+    {
+      filterName: t("fields.activeLang"),
+      filterKey: "active_lang",
+      filterOptions: langs.value,
+    },
     {
       filterName: t("fields.active"),
       filterKey: "is_active",
@@ -89,20 +107,26 @@ export const useUserStore = defineStore("users", () => {
 
   const isFormCreateFilled = computed(() => {
     return (
+      form.value.city_id !== 0 &&
       form.value.name.trim() !== "" &&
       form.value.username.trim() !== "" &&
       form.value.email.trim() !== "" &&
       form.value.phone_number.trim() !== "" &&
-      form.value.password?.trim() !== ""
+      form.value.password?.trim() !== "" &&
+      form.value.active_lang.trim() !== "" &&
+      form.value.role !== 0
     );
   });
 
   const isFormEditFilled = computed(() => {
     return (
+      form.value.city_id !== 0 &&
       form.value.name.trim() !== "" &&
       form.value.username.trim() !== "" &&
       form.value.email.trim() !== "" &&
-      form.value.phone_number.trim() !== ""
+      form.value.phone_number.trim() !== "" &&
+      form.value.active_lang.trim() !== "" &&
+      form.value.role !== 0
     );
   });
 
@@ -112,6 +136,7 @@ export const useUserStore = defineStore("users", () => {
     return (
       (isFormEditFilled.value &&
         form.value.name.trim() !== originalUser.value?.name) ||
+      form.value.city_id !== originalUser.value?.city_id ||
       form.value.username.trim() !== originalUser.value?.username ||
       form.value.email.trim() !== originalUser.value?.email ||
       form.value.phone_number.trim() !==
@@ -119,7 +144,9 @@ export const useUserStore = defineStore("users", () => {
       form.value.is_active != originalUser.value?.is_active ||
       form.value.active_lang !== originalUser.value?.active_lang ||
       (form.value.img_path && form.value.img_path !== "") ||
-      (form.value.password && form.value.password.trim() !== "")
+      (form.value.password && form.value.password.trim() !== "") ||
+      form.value.active_lang !== originalUser.value?.active_lang ||
+      form.value.role !== originalUser.value?.role
     );
   });
 
@@ -138,14 +165,16 @@ export const useUserStore = defineStore("users", () => {
       originalUser.value = user;
 
       form.value = {
+        city_id: user.city_id,
         name: user.name,
         username: user.username,
         email: user.email,
-        phone_number: user.phone_number || "",
+        phone_number: user.phone_number,
         password: "",
         img_path: "",
         is_active: user.is_active,
-        active_lang: user.active_lang ?? null,
+        active_lang: user.active_lang,
+        role: user.role,
       };
     }
   }

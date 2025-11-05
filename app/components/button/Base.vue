@@ -3,7 +3,7 @@
     <Icon v-if="loading" name="line-md:loading-twotone-loop" class="text-2xl" />
 
     <div v-else class="flex justify-center items-center gap-1.5">
-      <Icon v-if="icon != ''" :name="icon" class="min-w-[14px] min-h-[14px]" />
+      <Icon v-if="icon != ''" :name="icon" class="min-w-3.5 min-h-3.5" />
 
       <span
         class="text-xs font-normal"

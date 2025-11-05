@@ -13,12 +13,16 @@
         <div class="w-full sm:max-w-lg px-6 py-12">
           <BaseForm class="p-4">
             <img
-              src="@/assets/images/logo-bg.png"
+              src="@/assets/images/logo.png"
               alt="Logo"
               class="w-16 mx-auto mb-2 rounded-xl"
             />
 
-            <h1 class="text-2xl font-bold m-auto">{{ $t("welcome") }}</h1>
+            <h1
+              class="text-base md:text-xl lg:text-2xl font-bold m-auto text-center"
+            >
+              {{ $t("welcome") }}
+            </h1>
 
             <FormField
               v-model="store.form.email"
@@ -54,18 +58,17 @@
         <div
           class="absolute bottom-4 z-10 w-full flex justify-between items-center text-sm text-light/80 px-6"
         >
-          <span>
-            {{ $t("software") }} &copy; {{ new Date().getFullYear() }}</span
-          >
-
           <a
-            href="mailto:shadyarbzhar22@gmail.com"
+            href="https://shadyarbzharothman.com"
             target="_blank"
             class="flex items-center gap-1 text-light/80 hover:text-light transition-colors duration-300"
           >
-            <Icon name="clarity:email-solid" class="size-4" />
-            <span>shadyarbzhar22@gmail.com</span>
+            {{ $t("developedBy") }} <strong>Shadyar Bzhar Othman</strong>
           </a>
+
+          <span>
+            {{ $t("software") }} &copy; {{ new Date().getFullYear() }}</span
+          >
         </div>
       </div>
     </AppGlassBackground>

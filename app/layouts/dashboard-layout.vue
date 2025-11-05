@@ -15,7 +15,7 @@
         <img
           :src="Logo"
           alt="Shadnaz Pharmacy Logo"
-          class="h-[24px] md:h-[28px]"
+          class="h-7 md:h-8 rounded-lg"
         />
 
         <Icon
@@ -147,7 +147,7 @@
 import { useIsRtl } from "@/helpers/functions";
 
 // Assets
-import Logo from "@/assets/images/dashboard-logo-ltr.png";
+import Logo from "@/assets/images/logo.png";
 
 // Rtl
 const isRtl = useIsRtl();
@@ -177,22 +177,52 @@ const pages = computed(() => [
         soon: false,
       },
       {
-        icon: "mingcute:store-fill",
-        text: t("sidebar.stores"),
-        to: "dashboard",
-        soon: false,
+        icon: "solar:box-bold",
+        text: t("sidebar.manageProducts"),
+        links: [
+          {
+            icon: "ant-design:product-filled",
+            text: t("sidebar.products"),
+            to: "manage-products-products",
+            soon: false,
+          },
+          {
+            icon: "tabler:brand-tinder-filled",
+            text: t("sidebar.brands"),
+            to: "manage-products-brands",
+            soon: false,
+          },
+          {
+            icon: "ic:round-category",
+            text: t("sidebar.categories"),
+            to: "manage-products-categories",
+            soon: false,
+          },
+          {
+            icon: "iconamoon:category-fill",
+            text: t("sidebar.subCategories"),
+            to: "manage-products-sub-categories",
+            soon: false,
+          },
+        ],
+      },
+      {
+        icon: "lets-icons:order-fill",
+        text: t("sidebar.orders"),
+        to: "orders",
+        soon: true,
+      },
+      {
+        icon: "bxs:report",
+        text: t("sidebar.reports"),
+        to: "reports",
+        soon: true,
       },
       {
         icon: "fa:users",
         text: t("sidebar.users"),
-        to: "dashboard",
+        to: "users",
         soon: false,
-      },
-      {
-        icon: "mingcute:package-2-fill",
-        text: t("sidebar.plans"),
-        to: "dashboard",
-        soon: true,
       },
       {
         icon: "lsicon:setting-filled",
@@ -201,25 +231,43 @@ const pages = computed(() => [
           {
             icon: "solar:city-bold",
             text: t("sidebar.cities"),
-            to: "dashboard",
+            to: "settings-cities",
             soon: false,
           },
           {
-            icon: "fa7-solid:place-of-worship",
-            text: t("sidebar.types"),
-            to: "dashboard",
+            icon: "academicons:ads-square",
+            text: t("sidebar.ads"),
+            to: "settings-ads",
             soon: false,
           },
           {
-            icon: "mdi:coupon",
-            text: t("sidebar.coupons"),
-            to: "dashboard",
+            icon: "ic:round-local-offer",
+            text: t("sidebar.offers"),
+            to: "settings-offers",
             soon: true,
           },
           {
-            icon: "icon-park-solid:level",
-            text: t("sidebar.roles"),
-            to: "dashboard",
+            icon: "mingcute:notification-fill",
+            text: t("sidebar.notifications"),
+            to: "settings-notifications",
+            soon: true,
+          },
+          {
+            icon: "healthicons:low-income-level",
+            text: t("sidebar.incomes"),
+            to: "settings-incomes",
+            soon: false,
+          },
+          {
+            icon: "game-icons:expense",
+            text: t("sidebar.expenses"),
+            to: "settings-expenses",
+            soon: false,
+          },
+          {
+            icon: "clarity:coin-bag-solid",
+            text: t("sidebar.points"),
+            to: "settings-points",
             soon: true,
           },
         ],

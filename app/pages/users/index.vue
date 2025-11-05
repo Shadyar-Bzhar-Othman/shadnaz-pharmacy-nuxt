@@ -72,9 +72,10 @@ const items = ref([{ label: t("models.users"), icon: "fa:users" }]);
 
 // Hooks
 const { navigate } = useLocalizedNavigate();
-const { getActive } = useStoreDataUtils(t);
+const { getActive, getLang } = useStoreDataUtils(t);
 
 // Stores
+const filterStore = useFilterStore();
 const userStore = useUserStore();
 
 const { filters, searchTerm, paginationInfo, filteredUsers, isEmpty } =
@@ -85,6 +86,8 @@ const { search, setFilters, exportUsers, getUsers, setUser } = userStore;
 // Lifecycle Hooks
 onActivated(() => {
   fetchUsers();
+
+  filterStore.getCities();
 });
 
 // Functions
@@ -125,6 +128,13 @@ const tableConfig: ComputedRef<TableConfig> = computed(() => ({
       label: t("fields.name"),
     },
     {
+      key: "city_id",
+      label: t("fields.city"),
+      formatter(value, rowData) {
+        return filterStore.getCity(value)?.value ?? "-";
+      },
+    },
+    {
       key: "username",
       label: t("fields.username"),
     },
@@ -142,10 +152,22 @@ const tableConfig: ComputedRef<TableConfig> = computed(() => ({
       formatter(value, rowData) {
         return getActive(value == 1 ? true : false);
       },
+      style: (value, rowData) => {
+        if (value == 0) {
+          return "text-destructive-500 bg-destructive-100 rounded-full py-1";
+        } else {
+          return "text-success-500 bg-success-100 rounded-full py-1";
+        }
+
+        return "";
+      },
     },
     {
       key: "active_lang",
       label: t("fields.activeLang"),
+      formatter(value, rowData) {
+        return getLang(value);
+      },
     },
     {
       key: "created_at",

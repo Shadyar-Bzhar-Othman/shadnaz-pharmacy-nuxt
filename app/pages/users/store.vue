@@ -32,6 +32,24 @@
             :disabled="store.loading"
             :errors="store.errors"
           />
+          <FormDropdown
+            v-model="store.form.city_id"
+            name="city_id"
+            :tname="$t('fields.city')"
+            :options="filterStore.cities"
+            :required="true"
+            :disabled="store.loading"
+            :errors="store.errors"
+          />
+          <FormDropdown
+            v-model="store.form.role"
+            name="role"
+            :tname="$t('fields.role')"
+            :options="roles"
+            :required="true"
+            :disabled="store.loading"
+            :errors="store.errors"
+          />
           <FormField
             v-model="store.form.name"
             name="name"
@@ -74,6 +92,15 @@
             :disabled="store.loading"
             :errors="store.errors"
           />
+          <FormDropdown
+            v-model="store.form.active_lang"
+            name="active_lang"
+            :tname="$t('fields.activeLang')"
+            :options="langs"
+            :required="true"
+            :disabled="store.loading"
+            :errors="store.errors"
+          />
           <FormSwitch
             v-model="store.form.is_active"
             name="is_active"
@@ -82,7 +109,6 @@
             :disabled="store.loading"
             :errors="store.errors"
           />
-          <!-- active_lang -->
         </BaseForm>
       </template>
     </BasePageFormWrapper>
@@ -113,11 +139,18 @@ const items = ref([
 ]);
 
 // Stores
+const { roles, langs } = useStoreDataUtils(t);
+const filterStore = useFilterStore();
 const store = useUserStore();
 
 const { isFormCreateFilled, errors } = storeToRefs(store);
 
 const { createUser } = store;
+
+// Lifecycle Hooks
+onActivated(() => {
+  filterStore.getCities();
+});
 
 // Functions
 const createUserFunc = async () => {
