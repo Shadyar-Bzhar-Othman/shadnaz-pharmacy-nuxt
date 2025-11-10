@@ -1,30 +1,30 @@
 // Endpoints
-import { CITY_URL } from "~/helpers/endpoints";
+import { CATEGORY_URL } from "~/helpers/endpoints";
 
-// Cities
-import type { City, CityForm } from "~/types/others/city";
+// Categories
+import type { Category, CategoryForm } from "~/types/others/category";
 import type { MetaInfo, MetaResponse } from "@/types/shared/meta";
 
 // Others
 import { downloadBlob } from "@/helpers/functions";
 
-export const useCityStore = defineStore("cities", () => {
+export const useCategoryStore = defineStore("categories", () => {
   // States
-  const cities = ref<City[]>([]);
-  const currentCity = ref<City | null>(null);
-  const originalCity = ref<City | null>(null);
+  const categories = ref<Category[]>([]);
+  const currentCategory = ref<Category | null>(null);
+  const originalCategory = ref<Category | null>(null);
 
   const creating = ref(false);
   const editing = ref(false);
   const deleting = ref(false);
 
   // Form
-  const defaultForm: CityForm = {
+  const defaultForm: CategoryForm = {
     name: "",
   };
 
   // Pagination
-  const form = ref<CityForm>({ ...defaultForm });
+  const form = ref<CategoryForm>({ ...defaultForm });
 
   const paginationInfo = ref<MetaInfo>({
     currentPage: 1,
@@ -49,17 +49,17 @@ export const useCityStore = defineStore("cities", () => {
 
   const search = (value: string) => {
     searchTerm.value = value;
-    getCities(1);
+    getCategories(1);
   };
 
   // Computed Properties
-  const filteredCities = computed(() =>
-    cities.value.map((city) => ({
-      ...city,
+  const filteredCategories = computed(() =>
+    categories.value.map((category) => ({
+      ...category,
     }))
   );
 
-  const isEmpty = computed(() => !filteredCities.value.length);
+  const isEmpty = computed(() => !filteredCategories.value.length);
 
   const isFormCreateFilled = computed(() => {
     return form.value.name.trim() !== "";
@@ -70,46 +70,46 @@ export const useCityStore = defineStore("cities", () => {
   });
 
   const isFormEditChanged = computed(() => {
-    if (!currentCity.value) return false;
+    if (!currentCategory.value) return false;
 
     return (
       isFormEditFilled.value &&
-      form.value.name.trim() !== originalCity.value?.name
+      (form.value.name.trim() !== originalCategory.value?.name)
     );
   });
 
   // Helper Functions
   function notifySuccess(action: string) {
-    const message = `${t("models.city")} ${t(action)}`;
+    const message = `${t("models.category")} ${t(action)}`;
 
     success(`${message}!`);
   }
 
-  function setCity(city: City | null) {
-    if (!city) {
+  function setCategory(category: Category | null) {
+    if (!category) {
       resetForm();
     } else {
-      currentCity.value = city;
-      originalCity.value = city;
+      currentCategory.value = category;
+      originalCategory.value = category;
 
       form.value = {
-        name: city.name,
+        name: category.name,
       };
     }
   }
 
   // Functions
-  async function exportCities() {
+  async function exportCategories() {
     isLoading.value = true;
     errors.value = {};
 
     try {
-      const response = (await api.$api(`${CITY_URL}/export`, {
+      const response = (await api.$api(`${CATEGORY_URL}/export`, {
         method: "GET",
-        responseCity: "blob",
+        responseCategory: "blob",
       })) as unknown;
 
-      downloadBlob(response, "cities.xlsx");
+      downloadBlob(response, "categories.xlsx");
 
       notifySuccess("actions.downloaded");
     } catch (e) {
@@ -119,17 +119,17 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function getCities(page = 1) {
+  async function getCategories(page = 1) {
     isLoading.value = true;
     errors.value = {};
 
     try {
       const response = await api.getData<{
-        cities: City[];
+        categories: Category[];
         meta: MetaResponse;
-      }>(`${CITY_URL}?page=${page}&search=${searchTerm.value}`);
+      }>(`${CATEGORY_URL}?page=${page}&search=${searchTerm.value}`);
 
-      cities.value = response.cities;
+      categories.value = response.categories;
 
       paginationInfo.value.currentPage = response.meta.current_page;
       paginationInfo.value.totalPage = response.meta.last_page;
@@ -142,16 +142,18 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function getCity(id: string | number) {
+  async function getCategory(id: string | number) {
     isLoading.value = true;
     errors.value = {};
 
     try {
-      const response = await api.getData<{ data: City }>(`${CITY_URL}/${id}`);
+      const response = await api.getData<{ data: Category }>(
+        `${CATEGORY_URL}/${id}`
+      );
 
-      currentCity.value = response.data;
+      currentCategory.value = response.data;
 
-      setCity(currentCity.value);
+      setCategory(currentCategory.value);
     } catch (e) {
       errors.value = handleError(e);
     } finally {
@@ -159,7 +161,7 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function createCity() {
+  async function createCategory() {
     loading.value = true;
     errors.value = {};
     creating.value = true;
@@ -167,7 +169,7 @@ export const useCityStore = defineStore("cities", () => {
     const formData = createFormData(form.value);
 
     try {
-      await api.postData(`${CITY_URL}`, formData);
+      await api.postData(`${CATEGORY_URL}`, formData);
 
       notifySuccess("actions.created");
 
@@ -180,7 +182,7 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function editCity(id: string | number) {
+  async function editCategory(id: string | number) {
     loading.value = true;
     errors.value = {};
     editing.value = true;
@@ -189,7 +191,7 @@ export const useCityStore = defineStore("cities", () => {
     formData.append("_method", "PUT");
 
     try {
-      await api.postData(`${CITY_URL}/${id}`, formData);
+      await api.postData(`${CATEGORY_URL}/${id}`, formData);
 
       notifySuccess("actions.updated");
 
@@ -202,13 +204,13 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function deleteCity(id: string | number) {
+  async function deleteCategory(id: string | number) {
     loading.value = true;
     errors.value = {};
     deleting.value = true;
 
     try {
-      await api.deleteData(`${CITY_URL}/${id}`);
+      await api.deleteData(`${CATEGORY_URL}/${id}`);
 
       notifySuccess("actions.deleted");
     } catch (e) {
@@ -221,13 +223,13 @@ export const useCityStore = defineStore("cities", () => {
 
   function resetForm() {
     form.value = { ...defaultForm };
-    currentCity.value = null;
+    currentCategory.value = null;
     errors.value = {};
   }
 
   return {
-    currentCity,
-    filteredCities,
+    currentCategory,
+    filteredCategories,
     searchTerm,
     paginationInfo,
     form,
@@ -241,13 +243,13 @@ export const useCityStore = defineStore("cities", () => {
     isFormEditFilled,
     isFormEditChanged,
     search,
-    setCity,
-    exportCities,
-    getCities,
-    getCity,
-    createCity,
-    editCity,
-    deleteCity,
+    setCategory,
+    exportCategories,
+    getCategories,
+    getCategory,
+    createCategory,
+    editCategory,
+    deleteCategory,
     resetForm,
   };
 });

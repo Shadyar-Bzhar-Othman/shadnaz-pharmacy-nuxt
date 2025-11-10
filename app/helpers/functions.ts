@@ -33,3 +33,21 @@ export function downloadBlob(data: Blob | unknown, filename = "download") {
 
   window.URL.revokeObjectURL(url);
 }
+
+export function formatIraqiDinar(
+  amount: number,
+  type = 1,
+  dontRemoveMinus = false
+) {
+  if (!dontRemoveMinus) {
+    amount = amount < 0 ? amount * -1 : amount;
+  }
+
+  if (type != 1) {
+    return amount.toString();
+  }
+
+  amount = Math.trunc(amount);
+
+  return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}

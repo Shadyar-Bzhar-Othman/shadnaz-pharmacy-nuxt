@@ -1,30 +1,32 @@
 // Endpoints
-import { CITY_URL } from "~/helpers/endpoints";
+import { SUB_CATEGORY_URL } from "~/helpers/endpoints";
 
-// Cities
-import type { City, CityForm } from "~/types/others/city";
+// Sub Categories
+import type { SubCategory, SubCategoryForm } from "~/types/others/sub-category";
 import type { MetaInfo, MetaResponse } from "@/types/shared/meta";
+import type { FilterType } from "@/types/shared/data-table";
 
 // Others
 import { downloadBlob } from "@/helpers/functions";
 
-export const useCityStore = defineStore("cities", () => {
+export const useSubCategoryStore = defineStore("subCategories", () => {
   // States
-  const cities = ref<City[]>([]);
-  const currentCity = ref<City | null>(null);
-  const originalCity = ref<City | null>(null);
+  const subCategories = ref<SubCategory[]>([]);
+  const currentSubCategory = ref<SubCategory | null>(null);
+  const originalSubCategory = ref<SubCategory | null>(null);
 
   const creating = ref(false);
   const editing = ref(false);
   const deleting = ref(false);
 
   // Form
-  const defaultForm: CityForm = {
+  const defaultForm: SubCategoryForm = {
+    category_id: 0,
     name: "",
   };
 
   // Pagination
-  const form = ref<CityForm>({ ...defaultForm });
+  const form = ref<SubCategoryForm>({ ...defaultForm });
 
   const paginationInfo = ref<MetaInfo>({
     currentPage: 1,
@@ -41,6 +43,7 @@ export const useCityStore = defineStore("cities", () => {
   const errors = ref<any>({});
 
   // Utils
+  const filterStore = useFilterStore();
   const { handleError, createFormData } = useStoreUtils();
   const { success } = useToast();
 
@@ -49,67 +52,87 @@ export const useCityStore = defineStore("cities", () => {
 
   const search = (value: string) => {
     searchTerm.value = value;
-    getCities(1);
+
+    getSubCategories(1);
   };
 
+  // Filters
+  const queryString = ref("");
+
+  const filters = computed<FilterType[]>(() => [
+    {
+      filterName: t("fields.category"),
+      filterKey: "category_id",
+      filterOptions: filterStore.categories,
+    },
+  ]);
+
+  function setFilters(value: string) {
+    queryString.value = value;
+
+    getSubCategories(1);
+  }
+
   // Computed Properties
-  const filteredCities = computed(() =>
-    cities.value.map((city) => ({
-      ...city,
+  const filteredSubCategories = computed(() =>
+    subCategories.value.map((subCategory) => ({
+      ...subCategory,
     }))
   );
 
-  const isEmpty = computed(() => !filteredCities.value.length);
+  const isEmpty = computed(() => !filteredSubCategories.value.length);
 
   const isFormCreateFilled = computed(() => {
-    return form.value.name.trim() !== "";
+    return form.value.category_id !== 0 && form.value.name.trim() !== "";
   });
 
   const isFormEditFilled = computed(() => {
-    return form.value.name.trim() !== "";
+    return form.value.category_id !== 0 && form.value.name.trim() !== "";
   });
 
   const isFormEditChanged = computed(() => {
-    if (!currentCity.value) return false;
+    if (!currentSubCategory.value) return false;
 
     return (
       isFormEditFilled.value &&
-      form.value.name.trim() !== originalCity.value?.name
+      (form.value.name.trim() !== originalSubCategory.value?.name ||
+        form.value.category_id !== originalSubCategory.value?.category_id)
     );
   });
 
   // Helper Functions
   function notifySuccess(action: string) {
-    const message = `${t("models.city")} ${t(action)}`;
+    const message = `${t("models.subCategory")} ${t(action)}`;
 
     success(`${message}!`);
   }
 
-  function setCity(city: City | null) {
-    if (!city) {
+  function setSubCategory(subCategory: SubCategory | null) {
+    if (!subCategory) {
       resetForm();
     } else {
-      currentCity.value = city;
-      originalCity.value = city;
+      currentSubCategory.value = subCategory;
+      originalSubCategory.value = subCategory;
 
       form.value = {
-        name: city.name,
+        category_id: subCategory.category_id,
+        name: subCategory.name,
       };
     }
   }
 
   // Functions
-  async function exportCities() {
+  async function exportSubCategories() {
     isLoading.value = true;
     errors.value = {};
 
     try {
-      const response = (await api.$api(`${CITY_URL}/export`, {
+      const response = (await api.$api(`${SUB_CATEGORY_URL}/export`, {
         method: "GET",
-        responseCity: "blob",
+        responseSubCategory: "blob",
       })) as unknown;
 
-      downloadBlob(response, "cities.xlsx");
+      downloadBlob(response, "subCategories.xlsx");
 
       notifySuccess("actions.downloaded");
     } catch (e) {
@@ -119,17 +142,19 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function getCities(page = 1) {
+  async function getSubCategories(page = 1) {
     isLoading.value = true;
     errors.value = {};
 
     try {
       const response = await api.getData<{
-        cities: City[];
+        subCategories: SubCategory[];
         meta: MetaResponse;
-      }>(`${CITY_URL}?page=${page}&search=${searchTerm.value}`);
+      }>(
+        `${SUB_CATEGORY_URL}?page=${page}&search=${searchTerm.value}&${queryString.value}`
+      );
 
-      cities.value = response.cities;
+      subCategories.value = response.subCategories;
 
       paginationInfo.value.currentPage = response.meta.current_page;
       paginationInfo.value.totalPage = response.meta.last_page;
@@ -142,16 +167,18 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function getCity(id: string | number) {
+  async function getSubCategory(id: string | number) {
     isLoading.value = true;
     errors.value = {};
 
     try {
-      const response = await api.getData<{ data: City }>(`${CITY_URL}/${id}`);
+      const response = await api.getData<{ data: SubCategory }>(
+        `${SUB_CATEGORY_URL}/${id}`
+      );
 
-      currentCity.value = response.data;
+      currentSubCategory.value = response.data;
 
-      setCity(currentCity.value);
+      setSubCategory(currentSubCategory.value);
     } catch (e) {
       errors.value = handleError(e);
     } finally {
@@ -159,7 +186,7 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function createCity() {
+  async function createSubCategory() {
     loading.value = true;
     errors.value = {};
     creating.value = true;
@@ -167,7 +194,7 @@ export const useCityStore = defineStore("cities", () => {
     const formData = createFormData(form.value);
 
     try {
-      await api.postData(`${CITY_URL}`, formData);
+      await api.postData(`${SUB_CATEGORY_URL}`, formData);
 
       notifySuccess("actions.created");
 
@@ -180,7 +207,7 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function editCity(id: string | number) {
+  async function editSubCategory(id: string | number) {
     loading.value = true;
     errors.value = {};
     editing.value = true;
@@ -189,7 +216,7 @@ export const useCityStore = defineStore("cities", () => {
     formData.append("_method", "PUT");
 
     try {
-      await api.postData(`${CITY_URL}/${id}`, formData);
+      await api.postData(`${SUB_CATEGORY_URL}/${id}`, formData);
 
       notifySuccess("actions.updated");
 
@@ -202,13 +229,13 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function deleteCity(id: string | number) {
+  async function deleteSubCategory(id: string | number) {
     loading.value = true;
     errors.value = {};
     deleting.value = true;
 
     try {
-      await api.deleteData(`${CITY_URL}/${id}`);
+      await api.deleteData(`${SUB_CATEGORY_URL}/${id}`);
 
       notifySuccess("actions.deleted");
     } catch (e) {
@@ -221,14 +248,15 @@ export const useCityStore = defineStore("cities", () => {
 
   function resetForm() {
     form.value = { ...defaultForm };
-    currentCity.value = null;
+    currentSubCategory.value = null;
     errors.value = {};
   }
 
   return {
-    currentCity,
-    filteredCities,
+    currentSubCategory,
+    filteredSubCategories,
     searchTerm,
+    filters,
     paginationInfo,
     form,
     loading,
@@ -241,13 +269,14 @@ export const useCityStore = defineStore("cities", () => {
     isFormEditFilled,
     isFormEditChanged,
     search,
-    setCity,
-    exportCities,
-    getCities,
-    getCity,
-    createCity,
-    editCity,
-    deleteCity,
+    setFilters,
+    setSubCategory,
+    exportSubCategories,
+    getSubCategories,
+    getSubCategory,
+    createSubCategory,
+    editSubCategory,
+    deleteSubCategory,
     resetForm,
   };
 });

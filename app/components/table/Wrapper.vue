@@ -2,48 +2,60 @@
   <div class="w-full bg-table rounded-xl shadow-main border border-border/50">
     <div>
       <div
-        class="w-full p-1.5 border-b border-border/50 flex justify-between items-center gap-2"
+        class="w-full p-1.5 border-b border-border/50 flex flex-col justify-center items-center gap-2"
       >
-        <TableSearchField :searchTerm="searchTerm" @search="search" />
+        <div class="w-full flex justify-between items-center gap-2">
+          <TableSearchField :searchTerm="searchTerm" @search="search" />
 
-        <div class="flex justify-center items-center gap-2">
-          <ButtonSquare
-            v-if="localFilters.length > 0"
-            icon="ion:filter"
-            :isActive="isFilterSectionOpen"
-            @click="toggleFilterSection"
+          <BaseLocaleValueSwitcher
+            v-if="hasLocaleValueSwitcher"
+            class="hidden sm:flex"
           />
 
-          <div v-if="!noTable" class="relative">
+          <div v-if="!noTable" class="flex justify-center items-center gap-2">
             <ButtonSquare
-              icon="material-symbols-light:view-list"
-              :isActive="isShowPopoverOpen"
-              @click="toggleShowPopover"
+              v-if="localFilters.length > 0"
+              icon="ion:filter"
+              :isActive="isFilterSectionOpen"
+              @click="toggleFilterSection"
             />
 
-            <!-- Columns Popover -->
-            <BasePopover v-if="isShowPopoverOpen">
-              <h4 class="text-text text-sm font-medium">
-                {{ $t("messages.columns") }}
-              </h4>
+            <div class="relative">
+              <ButtonSquare
+                icon="material-symbols-light:view-list"
+                :isActive="isShowPopoverOpen"
+                @click="toggleShowPopover"
+              />
 
-              <BaseHR class="my-0 mt-1 mb-2" />
+              <!-- Columns Popover -->
+              <BasePopover v-if="isShowPopoverOpen">
+                <h4 class="text-text text-sm font-medium">
+                  {{ $t("messages.columns") }}
+                </h4>
 
-              <div class="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">
-                <TableFilterCheckbox
-                  v-for="col in columnsRegistry"
-                  :key="col.key"
-                  :filter="{
-                    key: col.key,
-                    value: col.label || col.key,
-                  }"
-                  :isSelected="visibleColumns[col.key]"
-                  @onSelect="() => toggleColumnVisibility(col.key)"
-                />
-              </div>
-            </BasePopover>
+                <BaseHR class="my-0 mt-1 mb-2" />
+
+                <div class="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">
+                  <TableFilterCheckbox
+                    v-for="col in columnsRegistry"
+                    :key="col.key"
+                    :filter="{
+                      key: col.key,
+                      value: col.label || col.key,
+                    }"
+                    :isSelected="visibleColumns[col.key]"
+                    @onSelect="() => toggleColumnVisibility(col.key)"
+                  />
+                </div>
+              </BasePopover>
+            </div>
           </div>
         </div>
+
+        <BaseLocaleValueSwitcher
+          v-if="hasLocaleValueSwitcher"
+          class="flex sm:hidden"
+        />
       </div>
 
       <transition name="fade-slide">
@@ -90,6 +102,11 @@ const props = defineProps({
     default: "",
   },
   noTable: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
+  hasLocaleValueSwitcher: {
     type: Boolean,
     required: false,
     default: false,

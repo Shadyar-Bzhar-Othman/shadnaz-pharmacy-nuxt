@@ -56,7 +56,8 @@
     "clickToUpload": "Click to upload",
     "dragAndDropOr": "Drag & drop here or",
     "updateProfile": "Update Profile",
-    "actions": "Actions"
+    "actions": "Actions",
+    "send": "Send"
   },
   "fields": {
     "name": "Name",
@@ -100,7 +101,19 @@
     "priceRange": "Price Range",
     "quantity": "Quantity",
     "totalPrice": "Total Price",
-    "details": "Details"
+    "details": "Details",
+    "amount": "Amount",
+    "message": "Message",
+    "title": "Title",
+    "subCategory": "Sub Category",
+    "brand": "Brand",
+    "nameEn": "Name (English)",
+    "nameAr": "Name (Arabic)",
+    "nameCkb": "Name (Kurdish)",
+    "descriptionEn": "Description (English)",
+    "descriptionAr": "Description (Arabic)",
+    "descriptionCkb": "Description (Kurdish)",
+    "discountedPrice": "Discounted Price"
   },
   "messages": {
     "noDataAvailable": "No data available",

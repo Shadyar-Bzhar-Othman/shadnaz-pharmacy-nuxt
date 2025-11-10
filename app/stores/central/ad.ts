@@ -1,30 +1,33 @@
 // Endpoints
-import { CITY_URL } from "~/helpers/endpoints";
+import { AD_URL } from "~/helpers/endpoints";
 
-// Cities
-import type { City, CityForm } from "~/types/others/city";
+// Types
+import type { Ad, AdForm } from "~/types/others/ad";
 import type { MetaInfo, MetaResponse } from "@/types/shared/meta";
+import type { FilterType } from "@/types/shared/data-table";
 
 // Others
 import { downloadBlob } from "@/helpers/functions";
 
-export const useCityStore = defineStore("cities", () => {
+export const useAdStore = defineStore("ads", () => {
   // States
-  const cities = ref<City[]>([]);
-  const currentCity = ref<City | null>(null);
-  const originalCity = ref<City | null>(null);
+  const ads = ref<Ad[]>([]);
+  const currentAd = ref<Ad | null>(null);
+  const originalAd = ref<Ad | null>(null);
 
   const creating = ref(false);
   const editing = ref(false);
   const deleting = ref(false);
 
   // Form
-  const defaultForm: CityForm = {
-    name: "",
+  const defaultForm: AdForm = {
+    title: "",
+    img_path: undefined,
+    is_active: 0,
   };
 
   // Pagination
-  const form = ref<CityForm>({ ...defaultForm });
+  const form = ref<AdForm>({ ...defaultForm });
 
   const paginationInfo = ref<MetaInfo>({
     currentPage: 1,
@@ -41,6 +44,7 @@ export const useCityStore = defineStore("cities", () => {
   const errors = ref<any>({});
 
   // Utils
+  const { actives } = useStoreDataUtils(t);
   const { handleError, createFormData } = useStoreUtils();
   const { success } = useToast();
 
@@ -49,67 +53,88 @@ export const useCityStore = defineStore("cities", () => {
 
   const search = (value: string) => {
     searchTerm.value = value;
-    getCities(1);
+    getAds(1);
   };
 
+  // Filters
+  const queryString = ref("");
+
+  const filters = computed<FilterType[]>(() => [
+    {
+      filterName: t("fields.active"),
+      filterKey: "is_active",
+      filterOptions: actives.value,
+    },
+  ]);
+
+  function setFilters(value: string) {
+    queryString.value = value;
+
+    getAds(1);
+  }
+
   // Computed Properties
-  const filteredCities = computed(() =>
-    cities.value.map((city) => ({
-      ...city,
+  const filteredAds = computed(() =>
+    ads.value.map((ad) => ({
+      ...ad,
     }))
   );
 
-  const isEmpty = computed(() => !filteredCities.value.length);
+  const isEmpty = computed(() => !filteredAds.value.length);
 
   const isFormCreateFilled = computed(() => {
-    return form.value.name.trim() !== "";
+    return form.value.title.trim() !== "" && form.value.img_path !== undefined;
   });
 
   const isFormEditFilled = computed(() => {
-    return form.value.name.trim() !== "";
+    return form.value.title.trim() !== "";
   });
 
   const isFormEditChanged = computed(() => {
-    if (!currentCity.value) return false;
+    if (!currentAd.value) return false;
 
     return (
       isFormEditFilled.value &&
-      form.value.name.trim() !== originalCity.value?.name
+      (form.value.title.trim() !== originalAd.value?.title ||
+        form.value.is_active != originalAd.value?.is_active ||
+        (form.value.img_path && form.value.img_path !== ""))
     );
   });
 
   // Helper Functions
   function notifySuccess(action: string) {
-    const message = `${t("models.city")} ${t(action)}`;
+    const message = `${t("models.ad")} ${t(action)}`;
 
     success(`${message}!`);
   }
 
-  function setCity(city: City | null) {
-    if (!city) {
+  function setAd(ad: Ad | null) {
+    if (!ad) {
       resetForm();
     } else {
-      currentCity.value = city;
-      originalCity.value = city;
+      currentAd.value = ad;
+      originalAd.value = ad;
 
       form.value = {
-        name: city.name,
+        title: ad.title,
+        img_path: "",
+        is_active: ad.is_active,
       };
     }
   }
 
   // Functions
-  async function exportCities() {
+  async function exportAds() {
     isLoading.value = true;
     errors.value = {};
 
     try {
-      const response = (await api.$api(`${CITY_URL}/export`, {
+      const response = (await api.$api(`${AD_URL}/export`, {
         method: "GET",
-        responseCity: "blob",
+        responseType: "blob",
       })) as unknown;
 
-      downloadBlob(response, "cities.xlsx");
+      downloadBlob(response, "ads.xlsx");
 
       notifySuccess("actions.downloaded");
     } catch (e) {
@@ -119,17 +144,19 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function getCities(page = 1) {
+  async function getAds(page = 1) {
     isLoading.value = true;
     errors.value = {};
 
     try {
       const response = await api.getData<{
-        cities: City[];
+        ads: Ad[];
         meta: MetaResponse;
-      }>(`${CITY_URL}?page=${page}&search=${searchTerm.value}`);
+      }>(
+        `${AD_URL}?page=${page}&search=${searchTerm.value}&${queryString.value}`
+      );
 
-      cities.value = response.cities;
+      ads.value = response.ads;
 
       paginationInfo.value.currentPage = response.meta.current_page;
       paginationInfo.value.totalPage = response.meta.last_page;
@@ -142,16 +169,16 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function getCity(id: string | number) {
+  async function getAd(id: string | number) {
     isLoading.value = true;
     errors.value = {};
 
     try {
-      const response = await api.getData<{ data: City }>(`${CITY_URL}/${id}`);
+      const response = await api.getData<{ data: Ad }>(`${AD_URL}/${id}`);
 
-      currentCity.value = response.data;
+      currentAd.value = response.data;
 
-      setCity(currentCity.value);
+      setAd(currentAd.value);
     } catch (e) {
       errors.value = handleError(e);
     } finally {
@@ -159,7 +186,7 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function createCity() {
+  async function createAd() {
     loading.value = true;
     errors.value = {};
     creating.value = true;
@@ -167,7 +194,7 @@ export const useCityStore = defineStore("cities", () => {
     const formData = createFormData(form.value);
 
     try {
-      await api.postData(`${CITY_URL}`, formData);
+      await api.postData(`${AD_URL}`, formData);
 
       notifySuccess("actions.created");
 
@@ -180,7 +207,7 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function editCity(id: string | number) {
+  async function editAd(id: string | number) {
     loading.value = true;
     errors.value = {};
     editing.value = true;
@@ -189,7 +216,7 @@ export const useCityStore = defineStore("cities", () => {
     formData.append("_method", "PUT");
 
     try {
-      await api.postData(`${CITY_URL}/${id}`, formData);
+      await api.postData(`${AD_URL}/${id}`, formData);
 
       notifySuccess("actions.updated");
 
@@ -202,13 +229,13 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function deleteCity(id: string | number) {
+  async function deleteAd(id: string | number) {
     loading.value = true;
     errors.value = {};
     deleting.value = true;
 
     try {
-      await api.deleteData(`${CITY_URL}/${id}`);
+      await api.deleteData(`${AD_URL}/${id}`);
 
       notifySuccess("actions.deleted");
     } catch (e) {
@@ -221,14 +248,15 @@ export const useCityStore = defineStore("cities", () => {
 
   function resetForm() {
     form.value = { ...defaultForm };
-    currentCity.value = null;
+    currentAd.value = null;
     errors.value = {};
   }
 
   return {
-    currentCity,
-    filteredCities,
+    currentAd,
+    filteredAds,
     searchTerm,
+    filters,
     paginationInfo,
     form,
     loading,
@@ -241,13 +269,14 @@ export const useCityStore = defineStore("cities", () => {
     isFormEditFilled,
     isFormEditChanged,
     search,
-    setCity,
-    exportCities,
-    getCities,
-    getCity,
-    createCity,
-    editCity,
-    deleteCity,
+    setFilters,
+    setAd,
+    exportAds,
+    getAds,
+    getAd,
+    createAd,
+    editAd,
+    deleteAd,
     resetForm,
   };
 });

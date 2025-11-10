@@ -1,30 +1,30 @@
 // Endpoints
-import { CITY_URL } from "~/helpers/endpoints";
+import { BRAND_URL } from "~/helpers/endpoints";
 
-// Cities
-import type { City, CityForm } from "~/types/others/city";
+// Brands
+import type { Brand, BrandForm } from "~/types/others/brand";
 import type { MetaInfo, MetaResponse } from "@/types/shared/meta";
 
 // Others
 import { downloadBlob } from "@/helpers/functions";
 
-export const useCityStore = defineStore("cities", () => {
+export const useBrandStore = defineStore("brands", () => {
   // States
-  const cities = ref<City[]>([]);
-  const currentCity = ref<City | null>(null);
-  const originalCity = ref<City | null>(null);
+  const brands = ref<Brand[]>([]);
+  const currentBrand = ref<Brand | null>(null);
+  const originalBrand = ref<Brand | null>(null);
 
   const creating = ref(false);
   const editing = ref(false);
   const deleting = ref(false);
 
   // Form
-  const defaultForm: CityForm = {
+  const defaultForm: BrandForm = {
     name: "",
   };
 
   // Pagination
-  const form = ref<CityForm>({ ...defaultForm });
+  const form = ref<BrandForm>({ ...defaultForm });
 
   const paginationInfo = ref<MetaInfo>({
     currentPage: 1,
@@ -49,17 +49,17 @@ export const useCityStore = defineStore("cities", () => {
 
   const search = (value: string) => {
     searchTerm.value = value;
-    getCities(1);
+    getBrands(1);
   };
 
   // Computed Properties
-  const filteredCities = computed(() =>
-    cities.value.map((city) => ({
-      ...city,
+  const filteredBrands = computed(() =>
+    brands.value.map((brand) => ({
+      ...brand,
     }))
   );
 
-  const isEmpty = computed(() => !filteredCities.value.length);
+  const isEmpty = computed(() => !filteredBrands.value.length);
 
   const isFormCreateFilled = computed(() => {
     return form.value.name.trim() !== "";
@@ -70,46 +70,46 @@ export const useCityStore = defineStore("cities", () => {
   });
 
   const isFormEditChanged = computed(() => {
-    if (!currentCity.value) return false;
+    if (!currentBrand.value) return false;
 
     return (
       isFormEditFilled.value &&
-      form.value.name.trim() !== originalCity.value?.name
+      form.value.name.trim() !== originalBrand.value?.name
     );
   });
 
   // Helper Functions
   function notifySuccess(action: string) {
-    const message = `${t("models.city")} ${t(action)}`;
+    const message = `${t("models.brand")} ${t(action)}`;
 
     success(`${message}!`);
   }
 
-  function setCity(city: City | null) {
-    if (!city) {
+  function setBrand(brand: Brand | null) {
+    if (!brand) {
       resetForm();
     } else {
-      currentCity.value = city;
-      originalCity.value = city;
+      currentBrand.value = brand;
+      originalBrand.value = brand;
 
       form.value = {
-        name: city.name,
+        name: brand.name,
       };
     }
   }
 
   // Functions
-  async function exportCities() {
+  async function exportBrands() {
     isLoading.value = true;
     errors.value = {};
 
     try {
-      const response = (await api.$api(`${CITY_URL}/export`, {
+      const response = (await api.$api(`${BRAND_URL}/export`, {
         method: "GET",
-        responseCity: "blob",
+        responseBrand: "blob",
       })) as unknown;
 
-      downloadBlob(response, "cities.xlsx");
+      downloadBlob(response, "brands.xlsx");
 
       notifySuccess("actions.downloaded");
     } catch (e) {
@@ -119,17 +119,17 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function getCities(page = 1) {
+  async function getBrands(page = 1) {
     isLoading.value = true;
     errors.value = {};
 
     try {
       const response = await api.getData<{
-        cities: City[];
+        brands: Brand[];
         meta: MetaResponse;
-      }>(`${CITY_URL}?page=${page}&search=${searchTerm.value}`);
+      }>(`${BRAND_URL}?page=${page}&search=${searchTerm.value}`);
 
-      cities.value = response.cities;
+      brands.value = response.brands;
 
       paginationInfo.value.currentPage = response.meta.current_page;
       paginationInfo.value.totalPage = response.meta.last_page;
@@ -142,16 +142,16 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function getCity(id: string | number) {
+  async function getBrand(id: string | number) {
     isLoading.value = true;
     errors.value = {};
 
     try {
-      const response = await api.getData<{ data: City }>(`${CITY_URL}/${id}`);
+      const response = await api.getData<{ data: Brand }>(`${BRAND_URL}/${id}`);
 
-      currentCity.value = response.data;
+      currentBrand.value = response.data;
 
-      setCity(currentCity.value);
+      setBrand(currentBrand.value);
     } catch (e) {
       errors.value = handleError(e);
     } finally {
@@ -159,7 +159,7 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function createCity() {
+  async function createBrand() {
     loading.value = true;
     errors.value = {};
     creating.value = true;
@@ -167,7 +167,7 @@ export const useCityStore = defineStore("cities", () => {
     const formData = createFormData(form.value);
 
     try {
-      await api.postData(`${CITY_URL}`, formData);
+      await api.postData(`${BRAND_URL}`, formData);
 
       notifySuccess("actions.created");
 
@@ -180,7 +180,7 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function editCity(id: string | number) {
+  async function editBrand(id: string | number) {
     loading.value = true;
     errors.value = {};
     editing.value = true;
@@ -189,7 +189,7 @@ export const useCityStore = defineStore("cities", () => {
     formData.append("_method", "PUT");
 
     try {
-      await api.postData(`${CITY_URL}/${id}`, formData);
+      await api.postData(`${BRAND_URL}/${id}`, formData);
 
       notifySuccess("actions.updated");
 
@@ -202,13 +202,13 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function deleteCity(id: string | number) {
+  async function deleteBrand(id: string | number) {
     loading.value = true;
     errors.value = {};
     deleting.value = true;
 
     try {
-      await api.deleteData(`${CITY_URL}/${id}`);
+      await api.deleteData(`${BRAND_URL}/${id}`);
 
       notifySuccess("actions.deleted");
     } catch (e) {
@@ -221,13 +221,13 @@ export const useCityStore = defineStore("cities", () => {
 
   function resetForm() {
     form.value = { ...defaultForm };
-    currentCity.value = null;
+    currentBrand.value = null;
     errors.value = {};
   }
 
   return {
-    currentCity,
-    filteredCities,
+    currentBrand,
+    filteredBrands,
     searchTerm,
     paginationInfo,
     form,
@@ -241,13 +241,13 @@ export const useCityStore = defineStore("cities", () => {
     isFormEditFilled,
     isFormEditChanged,
     search,
-    setCity,
-    exportCities,
-    getCities,
-    getCity,
-    createCity,
-    editCity,
-    deleteCity,
+    setBrand,
+    exportBrands,
+    getBrands,
+    getBrand,
+    createBrand,
+    editBrand,
+    deleteBrand,
     resetForm,
   };
 });

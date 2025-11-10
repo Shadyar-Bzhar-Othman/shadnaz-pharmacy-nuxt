@@ -134,19 +134,19 @@ export const useUserStore = defineStore("users", () => {
     if (!currentUser.value) return false;
 
     return (
-      (isFormEditFilled.value &&
-        form.value.name.trim() !== originalUser.value?.name) ||
-      form.value.city_id !== originalUser.value?.city_id ||
-      form.value.username.trim() !== originalUser.value?.username ||
-      form.value.email.trim() !== originalUser.value?.email ||
-      form.value.phone_number.trim() !==
-        (originalUser.value?.phone_number || "") ||
-      form.value.is_active != originalUser.value?.is_active ||
-      form.value.active_lang !== originalUser.value?.active_lang ||
-      (form.value.img_path && form.value.img_path !== "") ||
-      (form.value.password && form.value.password.trim() !== "") ||
-      form.value.active_lang !== originalUser.value?.active_lang ||
-      form.value.role !== originalUser.value?.role
+      isFormEditFilled.value &&
+      (form.value.name.trim() !== originalUser.value?.name ||
+        form.value.city_id !== originalUser.value?.city_id ||
+        form.value.username.trim() !== originalUser.value?.username ||
+        form.value.email.trim() !== originalUser.value?.email ||
+        form.value.phone_number.trim() !==
+          (originalUser.value?.phone_number || "") ||
+        form.value.is_active != originalUser.value?.is_active ||
+        form.value.active_lang !== originalUser.value?.active_lang ||
+        (form.value.img_path && form.value.img_path !== "") ||
+        (form.value.password && form.value.password.trim() !== "") ||
+        form.value.active_lang !== originalUser.value?.active_lang ||
+        form.value.role !== originalUser.value?.role)
     );
   });
 

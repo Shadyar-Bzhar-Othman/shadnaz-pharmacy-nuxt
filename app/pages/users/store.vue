@@ -12,7 +12,7 @@
             <ButtonBase
               icon="subway:add"
               width="w-[150px]"
-              :text="t('actions.create') + ' ' + t('models.user')"
+              :text="t('actions.create') "
               :loading="store.loading && store.creating"
               :disabled="store.loading || !isFormCreateFilled"
               @click="createUserFunc"

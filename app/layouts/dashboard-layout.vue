@@ -5,7 +5,7 @@
   <div class="bg-primary min-w-full min-h-screen relative">
     <!-- Top -->
     <div
-      class="px-4 md:px-6 py-4 flex justify-between items-center gap-4 relative z-20 bg-primary h-[56px]"
+      class="px-4 md:px-6 py-4 flex justify-between items-center gap-4 relative z-20 bg-primary h-14"
     >
       <!-- Logo / Menu Button -->
       <div
@@ -76,7 +76,7 @@
       <!-- Sidebar -->
       <div
         ref="sidebarRef"
-        class="flex flex-col justify-between bg-sidebar px-3 py-4 min-w-56 transform transition-transform duration-300 ease-in-out fixed md:static md:top-0 top-[56px] z-30 h-[100dvh] overflow-y-auto md:h-auto md:overflow-visible"
+        class="flex flex-col justify-between bg-sidebar px-3 py-4 min-w-62 transform transition-transform duration-300 ease-in-out fixed md:static md:top-0 top-14 z-30 h-dvh overflow-y-auto md:h-auto md:overflow-visible"
         style="min-height: calc(100dvh - 56px)"
         :class="[
           isRtl
@@ -127,7 +127,7 @@
       <!-- Overlay (only mobile, only below top) -->
       <div
         v-if="isSidebarOpen"
-        class="fixed inset-x-0 top-[56px] bottom-0 bg-black/40 z-20 md:hidden"
+        class="fixed inset-x-0 top-14 bottom-0 bg-black/40 z-20 md:hidden"
         @click="isSidebarOpen = false"
       ></div>
 
@@ -250,7 +250,7 @@ const pages = computed(() => [
             icon: "mingcute:notification-fill",
             text: t("sidebar.notifications"),
             to: "settings-notifications",
-            soon: true,
+            soon: false,
           },
           {
             icon: "healthicons:low-income-level",

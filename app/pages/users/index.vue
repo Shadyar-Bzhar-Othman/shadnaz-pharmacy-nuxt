@@ -154,12 +154,10 @@ const tableConfig: ComputedRef<TableConfig> = computed(() => ({
       },
       style: (value, rowData) => {
         if (value == 0) {
-          return "text-destructive-500 bg-destructive-100 rounded-full py-1";
+          return "max-w-24 text-destructive-500 bg-destructive-200 rounded-full py-1";
         } else {
-          return "text-success-500 bg-success-100 rounded-full py-1";
+          return "max-w-24 text-success-500 bg-success-200 rounded-full py-1";
         }
-
-        return "";
       },
     },
     {

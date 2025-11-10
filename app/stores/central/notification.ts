@@ -1,30 +1,34 @@
 // Endpoints
-import { CITY_URL } from "~/helpers/endpoints";
+import { NOTIFICATION_URL } from "~/helpers/endpoints";
 
-// Cities
-import type { City, CityForm } from "~/types/others/city";
+// Notifications
+import type {
+  Notification,
+  NotificationForm,
+} from "~/types/others/notification";
 import type { MetaInfo, MetaResponse } from "@/types/shared/meta";
 
 // Others
 import { downloadBlob } from "@/helpers/functions";
 
-export const useCityStore = defineStore("cities", () => {
+export const useNotificationStore = defineStore("notifications", () => {
   // States
-  const cities = ref<City[]>([]);
-  const currentCity = ref<City | null>(null);
-  const originalCity = ref<City | null>(null);
+  const notifications = ref<Notification[]>([]);
+  const currentNotification = ref<Notification | null>(null);
+  const originalNotification = ref<Notification | null>(null);
 
   const creating = ref(false);
   const editing = ref(false);
   const deleting = ref(false);
 
   // Form
-  const defaultForm: CityForm = {
-    name: "",
+  const defaultForm: NotificationForm = {
+    title: "",
+    message: "",
   };
 
   // Pagination
-  const form = ref<CityForm>({ ...defaultForm });
+  const form = ref<NotificationForm>({ ...defaultForm });
 
   const paginationInfo = ref<MetaInfo>({
     currentPage: 1,
@@ -49,67 +53,69 @@ export const useCityStore = defineStore("cities", () => {
 
   const search = (value: string) => {
     searchTerm.value = value;
-    getCities(1);
+    getNotifications(1);
   };
 
   // Computed Properties
-  const filteredCities = computed(() =>
-    cities.value.map((city) => ({
-      ...city,
+  const filteredNotifications = computed(() =>
+    notifications.value.map((notification) => ({
+      ...notification,
     }))
   );
 
-  const isEmpty = computed(() => !filteredCities.value.length);
+  const isEmpty = computed(() => !filteredNotifications.value.length);
 
   const isFormCreateFilled = computed(() => {
-    return form.value.name.trim() !== "";
+    return form.value.title.trim() !== "" && form.value.message.trim() !== "";
   });
 
   const isFormEditFilled = computed(() => {
-    return form.value.name.trim() !== "";
+    return form.value.title.trim() !== "" && form.value.message.trim() !== "";
   });
 
   const isFormEditChanged = computed(() => {
-    if (!currentCity.value) return false;
+    if (!currentNotification.value) return false;
 
     return (
       isFormEditFilled.value &&
-      form.value.name.trim() !== originalCity.value?.name
+      (form.value.title !== originalNotification.value?.title ||
+        form.value.message.trim() !== originalNotification.value?.message)
     );
   });
 
   // Helper Functions
   function notifySuccess(action: string) {
-    const message = `${t("models.city")} ${t(action)}`;
+    const message = `${t("models.notification")} ${t(action)}`;
 
     success(`${message}!`);
   }
 
-  function setCity(city: City | null) {
-    if (!city) {
+  function setNotification(notification: Notification | null) {
+    if (!notification) {
       resetForm();
     } else {
-      currentCity.value = city;
-      originalCity.value = city;
+      currentNotification.value = notification;
+      originalNotification.value = notification;
 
       form.value = {
-        name: city.name,
+        title: notification.title,
+        message: notification.message,
       };
     }
   }
 
   // Functions
-  async function exportCities() {
+  async function exportNotifications() {
     isLoading.value = true;
     errors.value = {};
 
     try {
-      const response = (await api.$api(`${CITY_URL}/export`, {
+      const response = (await api.$api(`${NOTIFICATION_URL}/export`, {
         method: "GET",
-        responseCity: "blob",
+        responseNotification: "blob",
       })) as unknown;
 
-      downloadBlob(response, "cities.xlsx");
+      downloadBlob(response, "notifications.xlsx");
 
       notifySuccess("actions.downloaded");
     } catch (e) {
@@ -119,17 +125,17 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function getCities(page = 1) {
+  async function getNotifications(page = 1) {
     isLoading.value = true;
     errors.value = {};
 
     try {
       const response = await api.getData<{
-        cities: City[];
+        notifications: Notification[];
         meta: MetaResponse;
-      }>(`${CITY_URL}?page=${page}&search=${searchTerm.value}`);
+      }>(`${NOTIFICATION_URL}?page=${page}&search=${searchTerm.value}`);
 
-      cities.value = response.cities;
+      notifications.value = response.notifications;
 
       paginationInfo.value.currentPage = response.meta.current_page;
       paginationInfo.value.totalPage = response.meta.last_page;
@@ -142,16 +148,18 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function getCity(id: string | number) {
+  async function getNotification(id: string | number) {
     isLoading.value = true;
     errors.value = {};
 
     try {
-      const response = await api.getData<{ data: City }>(`${CITY_URL}/${id}`);
+      const response = await api.getData<{ data: Notification }>(
+        `${NOTIFICATION_URL}/${id}`
+      );
 
-      currentCity.value = response.data;
+      currentNotification.value = response.data;
 
-      setCity(currentCity.value);
+      setNotification(currentNotification.value);
     } catch (e) {
       errors.value = handleError(e);
     } finally {
@@ -159,7 +167,7 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function createCity() {
+  async function createNotification() {
     loading.value = true;
     errors.value = {};
     creating.value = true;
@@ -167,7 +175,7 @@ export const useCityStore = defineStore("cities", () => {
     const formData = createFormData(form.value);
 
     try {
-      await api.postData(`${CITY_URL}`, formData);
+      await api.postData(`${NOTIFICATION_URL}`, formData);
 
       notifySuccess("actions.created");
 
@@ -180,7 +188,7 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function editCity(id: string | number) {
+  async function editNotification(id: string | number) {
     loading.value = true;
     errors.value = {};
     editing.value = true;
@@ -189,7 +197,7 @@ export const useCityStore = defineStore("cities", () => {
     formData.append("_method", "PUT");
 
     try {
-      await api.postData(`${CITY_URL}/${id}`, formData);
+      await api.postData(`${NOTIFICATION_URL}/${id}`, formData);
 
       notifySuccess("actions.updated");
 
@@ -202,13 +210,13 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function deleteCity(id: string | number) {
+  async function deleteNotification(id: string | number) {
     loading.value = true;
     errors.value = {};
     deleting.value = true;
 
     try {
-      await api.deleteData(`${CITY_URL}/${id}`);
+      await api.deleteData(`${NOTIFICATION_URL}/${id}`);
 
       notifySuccess("actions.deleted");
     } catch (e) {
@@ -221,13 +229,13 @@ export const useCityStore = defineStore("cities", () => {
 
   function resetForm() {
     form.value = { ...defaultForm };
-    currentCity.value = null;
+    currentNotification.value = null;
     errors.value = {};
   }
 
   return {
-    currentCity,
-    filteredCities,
+    currentNotification,
+    filteredNotifications,
     searchTerm,
     paginationInfo,
     form,
@@ -241,13 +249,13 @@ export const useCityStore = defineStore("cities", () => {
     isFormEditFilled,
     isFormEditChanged,
     search,
-    setCity,
-    exportCities,
-    getCities,
-    getCity,
-    createCity,
-    editCity,
-    deleteCity,
+    setNotification,
+    exportNotifications,
+    getNotifications,
+    getNotification,
+    createNotification,
+    editNotification,
+    deleteNotification,
     resetForm,
   };
 });

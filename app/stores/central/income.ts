@@ -1,30 +1,31 @@
 // Endpoints
-import { CITY_URL } from "~/helpers/endpoints";
+import { INCOME_URL } from "~/helpers/endpoints";
 
-// Cities
-import type { City, CityForm } from "~/types/others/city";
+// Incomes
+import type { Income, IncomeForm } from "~/types/others/income";
 import type { MetaInfo, MetaResponse } from "@/types/shared/meta";
 
 // Others
 import { downloadBlob } from "@/helpers/functions";
 
-export const useCityStore = defineStore("cities", () => {
+export const useIncomeStore = defineStore("incomes", () => {
   // States
-  const cities = ref<City[]>([]);
-  const currentCity = ref<City | null>(null);
-  const originalCity = ref<City | null>(null);
+  const incomes = ref<Income[]>([]);
+  const currentIncome = ref<Income | null>(null);
+  const originalIncome = ref<Income | null>(null);
 
   const creating = ref(false);
   const editing = ref(false);
   const deleting = ref(false);
 
   // Form
-  const defaultForm: CityForm = {
-    name: "",
+  const defaultForm: IncomeForm = {
+    amount: 0,
+    description: "",
   };
 
   // Pagination
-  const form = ref<CityForm>({ ...defaultForm });
+  const form = ref<IncomeForm>({ ...defaultForm });
 
   const paginationInfo = ref<MetaInfo>({
     currentPage: 1,
@@ -49,67 +50,69 @@ export const useCityStore = defineStore("cities", () => {
 
   const search = (value: string) => {
     searchTerm.value = value;
-    getCities(1);
+    getIncomes(1);
   };
 
   // Computed Properties
-  const filteredCities = computed(() =>
-    cities.value.map((city) => ({
-      ...city,
+  const filteredIncomes = computed(() =>
+    incomes.value.map((income) => ({
+      ...income,
     }))
   );
 
-  const isEmpty = computed(() => !filteredCities.value.length);
+  const isEmpty = computed(() => !filteredIncomes.value.length);
 
   const isFormCreateFilled = computed(() => {
-    return form.value.name.trim() !== "";
+    return form.value.amount > 0 && form.value.description.trim() !== "";
   });
 
   const isFormEditFilled = computed(() => {
-    return form.value.name.trim() !== "";
+    return form.value.amount > 0 && form.value.description.trim() !== "";
   });
 
   const isFormEditChanged = computed(() => {
-    if (!currentCity.value) return false;
+    if (!currentIncome.value) return false;
 
     return (
       isFormEditFilled.value &&
-      form.value.name.trim() !== originalCity.value?.name
+      (form.value.amount != originalIncome.value?.amount ||
+        form.value.description.trim() !== originalIncome.value?.description)
     );
   });
 
   // Helper Functions
   function notifySuccess(action: string) {
-    const message = `${t("models.city")} ${t(action)}`;
+    const message = `${t("models.income")} ${t(action)}`;
 
     success(`${message}!`);
   }
 
-  function setCity(city: City | null) {
-    if (!city) {
+  function setIncome(income: Income | null) {
+    if (!income) {
       resetForm();
     } else {
-      currentCity.value = city;
-      originalCity.value = city;
+      currentIncome.value = income;
+      originalIncome.value = income;
 
       form.value = {
-        name: city.name,
+        amount: income.amount,
+        description: income.description,
       };
     }
   }
 
   // Functions
-  async function exportCities() {
+  async function exportIncomes() {
     isLoading.value = true;
     errors.value = {};
 
     try {
-      const response = (await api.$api(`${CITY_URL}/export`, {
+      const response = (await api.$api(`${INCOME_URL}/export`, {
         method: "GET",
-        responseCity: "blob",
+        responseIncome: "blob",
       })) as unknown;
 
-      downloadBlob(response, "cities.xlsx");
+      downloadBlob(response, "incomes.xlsx");
 
       notifySuccess("actions.downloaded");
     } catch (e) {
@@ -119,17 +122,17 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function getCities(page = 1) {
+  async function getIncomes(page = 1) {
     isLoading.value = true;
     errors.value = {};
 
     try {
       const response = await api.getData<{
-        cities: City[];
+        incomes: Income[];
         meta: MetaResponse;
-      }>(`${CITY_URL}?page=${page}&search=${searchTerm.value}`);
+      }>(`${INCOME_URL}?page=${page}&search=${searchTerm.value}`);
 
-      cities.value = response.cities;
+      incomes.value = response.incomes;
 
       paginationInfo.value.currentPage = response.meta.current_page;
       paginationInfo.value.totalPage = response.meta.last_page;
@@ -142,16 +145,18 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function getCity(id: string | number) {
+  async function getIncome(id: string | number) {
     isLoading.value = true;
     errors.value = {};
 
     try {
-      const response = await api.getData<{ data: City }>(`${CITY_URL}/${id}`);
+      const response = await api.getData<{ data: Income }>(
+        `${INCOME_URL}/${id}`
+      );
 
-      currentCity.value = response.data;
+      currentIncome.value = response.data;
 
-      setCity(currentCity.value);
+      setIncome(currentIncome.value);
     } catch (e) {
       errors.value = handleError(e);
     } finally {
@@ -159,7 +164,7 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function createCity() {
+  async function createIncome() {
     loading.value = true;
     errors.value = {};
     creating.value = true;
@@ -167,7 +172,7 @@ export const useCityStore = defineStore("cities", () => {
     const formData = createFormData(form.value);
 
     try {
-      await api.postData(`${CITY_URL}`, formData);
+      await api.postData(`${INCOME_URL}`, formData);
 
       notifySuccess("actions.created");
 
@@ -180,7 +185,7 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function editCity(id: string | number) {
+  async function editIncome(id: string | number) {
     loading.value = true;
     errors.value = {};
     editing.value = true;
@@ -189,7 +194,7 @@ export const useCityStore = defineStore("cities", () => {
     formData.append("_method", "PUT");
 
     try {
-      await api.postData(`${CITY_URL}/${id}`, formData);
+      await api.postData(`${INCOME_URL}/${id}`, formData);
 
       notifySuccess("actions.updated");
 
@@ -202,13 +207,13 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function deleteCity(id: string | number) {
+  async function deleteIncome(id: string | number) {
     loading.value = true;
     errors.value = {};
     deleting.value = true;
 
     try {
-      await api.deleteData(`${CITY_URL}/${id}`);
+      await api.deleteData(`${INCOME_URL}/${id}`);
 
       notifySuccess("actions.deleted");
     } catch (e) {
@@ -221,13 +226,13 @@ export const useCityStore = defineStore("cities", () => {
 
   function resetForm() {
     form.value = { ...defaultForm };
-    currentCity.value = null;
+    currentIncome.value = null;
     errors.value = {};
   }
 
   return {
-    currentCity,
-    filteredCities,
+    currentIncome,
+    filteredIncomes,
     searchTerm,
     paginationInfo,
     form,
@@ -241,13 +246,13 @@ export const useCityStore = defineStore("cities", () => {
     isFormEditFilled,
     isFormEditChanged,
     search,
-    setCity,
-    exportCities,
-    getCities,
-    getCity,
-    createCity,
-    editCity,
-    deleteCity,
+    setIncome,
+    exportIncomes,
+    getIncomes,
+    getIncome,
+    createIncome,
+    editIncome,
+    deleteIncome,
     resetForm,
   };
 });

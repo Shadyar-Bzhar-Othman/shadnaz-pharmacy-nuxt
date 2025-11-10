@@ -1,30 +1,31 @@
 // Endpoints
-import { CITY_URL } from "~/helpers/endpoints";
+import { EXPENSE_URL } from "~/helpers/endpoints";
 
-// Cities
-import type { City, CityForm } from "~/types/others/city";
+// Expenses
+import type { Expense, ExpenseForm } from "~/types/others/expense";
 import type { MetaInfo, MetaResponse } from "@/types/shared/meta";
 
 // Others
 import { downloadBlob } from "@/helpers/functions";
 
-export const useCityStore = defineStore("cities", () => {
+export const useExpenseStore = defineStore("expenses", () => {
   // States
-  const cities = ref<City[]>([]);
-  const currentCity = ref<City | null>(null);
-  const originalCity = ref<City | null>(null);
+  const expenses = ref<Expense[]>([]);
+  const currentExpense = ref<Expense | null>(null);
+  const originalExpense = ref<Expense | null>(null);
 
   const creating = ref(false);
   const editing = ref(false);
   const deleting = ref(false);
 
   // Form
-  const defaultForm: CityForm = {
-    name: "",
+  const defaultForm: ExpenseForm = {
+    amount: 0,
+    description: "",
   };
 
   // Pagination
-  const form = ref<CityForm>({ ...defaultForm });
+  const form = ref<ExpenseForm>({ ...defaultForm });
 
   const paginationInfo = ref<MetaInfo>({
     currentPage: 1,
@@ -49,67 +50,69 @@ export const useCityStore = defineStore("cities", () => {
 
   const search = (value: string) => {
     searchTerm.value = value;
-    getCities(1);
+    getExpenses(1);
   };
 
   // Computed Properties
-  const filteredCities = computed(() =>
-    cities.value.map((city) => ({
-      ...city,
+  const filteredExpenses = computed(() =>
+    expenses.value.map((expense) => ({
+      ...expense,
     }))
   );
 
-  const isEmpty = computed(() => !filteredCities.value.length);
+  const isEmpty = computed(() => !filteredExpenses.value.length);
 
   const isFormCreateFilled = computed(() => {
-    return form.value.name.trim() !== "";
+    return form.value.amount > 0 && form.value.description.trim() !== "";
   });
 
   const isFormEditFilled = computed(() => {
-    return form.value.name.trim() !== "";
+    return form.value.amount > 0 && form.value.description.trim() !== "";
   });
 
   const isFormEditChanged = computed(() => {
-    if (!currentCity.value) return false;
+    if (!currentExpense.value) return false;
 
     return (
       isFormEditFilled.value &&
-      form.value.name.trim() !== originalCity.value?.name
+      (form.value.amount !== originalExpense.value?.amount ||
+        form.value.description.trim() !== originalExpense.value?.description)
     );
   });
 
   // Helper Functions
   function notifySuccess(action: string) {
-    const message = `${t("models.city")} ${t(action)}`;
+    const message = `${t("models.expense")} ${t(action)}`;
 
     success(`${message}!`);
   }
 
-  function setCity(city: City | null) {
-    if (!city) {
+  function setExpense(expense: Expense | null) {
+    if (!expense) {
       resetForm();
     } else {
-      currentCity.value = city;
-      originalCity.value = city;
+      currentExpense.value = expense;
+      originalExpense.value = expense;
 
       form.value = {
-        name: city.name,
+        amount: expense.amount,
+        description: expense.description,
       };
     }
   }
 
   // Functions
-  async function exportCities() {
+  async function exportExpenses() {
     isLoading.value = true;
     errors.value = {};
 
     try {
-      const response = (await api.$api(`${CITY_URL}/export`, {
+      const response = (await api.$api(`${EXPENSE_URL}/export`, {
         method: "GET",
-        responseCity: "blob",
+        responseExpense: "blob",
       })) as unknown;
 
-      downloadBlob(response, "cities.xlsx");
+      downloadBlob(response, "expenses.xlsx");
 
       notifySuccess("actions.downloaded");
     } catch (e) {
@@ -119,17 +122,17 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function getCities(page = 1) {
+  async function getExpenses(page = 1) {
     isLoading.value = true;
     errors.value = {};
 
     try {
       const response = await api.getData<{
-        cities: City[];
+        expenses: Expense[];
         meta: MetaResponse;
-      }>(`${CITY_URL}?page=${page}&search=${searchTerm.value}`);
+      }>(`${EXPENSE_URL}?page=${page}&search=${searchTerm.value}`);
 
-      cities.value = response.cities;
+      expenses.value = response.expenses;
 
       paginationInfo.value.currentPage = response.meta.current_page;
       paginationInfo.value.totalPage = response.meta.last_page;
@@ -142,16 +145,18 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function getCity(id: string | number) {
+  async function getExpense(id: string | number) {
     isLoading.value = true;
     errors.value = {};
 
     try {
-      const response = await api.getData<{ data: City }>(`${CITY_URL}/${id}`);
+      const response = await api.getData<{ data: Expense }>(
+        `${EXPENSE_URL}/${id}`
+      );
 
-      currentCity.value = response.data;
+      currentExpense.value = response.data;
 
-      setCity(currentCity.value);
+      setExpense(currentExpense.value);
     } catch (e) {
       errors.value = handleError(e);
     } finally {
@@ -159,7 +164,7 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function createCity() {
+  async function createExpense() {
     loading.value = true;
     errors.value = {};
     creating.value = true;
@@ -167,7 +172,7 @@ export const useCityStore = defineStore("cities", () => {
     const formData = createFormData(form.value);
 
     try {
-      await api.postData(`${CITY_URL}`, formData);
+      await api.postData(`${EXPENSE_URL}`, formData);
 
       notifySuccess("actions.created");
 
@@ -180,7 +185,7 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function editCity(id: string | number) {
+  async function editExpense(id: string | number) {
     loading.value = true;
     errors.value = {};
     editing.value = true;
@@ -189,7 +194,7 @@ export const useCityStore = defineStore("cities", () => {
     formData.append("_method", "PUT");
 
     try {
-      await api.postData(`${CITY_URL}/${id}`, formData);
+      await api.postData(`${EXPENSE_URL}/${id}`, formData);
 
       notifySuccess("actions.updated");
 
@@ -202,13 +207,13 @@ export const useCityStore = defineStore("cities", () => {
     }
   }
 
-  async function deleteCity(id: string | number) {
+  async function deleteExpense(id: string | number) {
     loading.value = true;
     errors.value = {};
     deleting.value = true;
 
     try {
-      await api.deleteData(`${CITY_URL}/${id}`);
+      await api.deleteData(`${EXPENSE_URL}/${id}`);
 
       notifySuccess("actions.deleted");
     } catch (e) {
@@ -221,13 +226,13 @@ export const useCityStore = defineStore("cities", () => {
 
   function resetForm() {
     form.value = { ...defaultForm };
-    currentCity.value = null;
+    currentExpense.value = null;
     errors.value = {};
   }
 
   return {
-    currentCity,
-    filteredCities,
+    currentExpense,
+    filteredExpenses,
     searchTerm,
     paginationInfo,
     form,
@@ -241,13 +246,13 @@ export const useCityStore = defineStore("cities", () => {
     isFormEditFilled,
     isFormEditChanged,
     search,
-    setCity,
-    exportCities,
-    getCities,
-    getCity,
-    createCity,
-    editCity,
-    deleteCity,
+    setExpense,
+    exportExpenses,
+    getExpenses,
+    getExpense,
+    createExpense,
+    editExpense,
+    deleteExpense,
     resetForm,
   };
 });

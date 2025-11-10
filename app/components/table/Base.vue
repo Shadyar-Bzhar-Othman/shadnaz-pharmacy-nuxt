@@ -79,13 +79,13 @@
               <template v-else>
                 <div
                   :class="[
-                    column.key != 'id' ? 'w-[200px] m-auto' : 'w-[40px] m-auto',
+                    column.key != 'id' ? 'w-[200px] m-auto' : 'w-10 m-auto',
                   ]"
                 >
                   <div
                     :class="[
                       '',
-                      'w-full text-center text-wrap break-words m-auto flex justify-center items-center gap-0.5',
+                      'w-full text-center text-wrap wrap-break-word m-auto flex justify-center items-center gap-0.5',
                       column.style ? column.style(item[column.key], item) : '',
                     ]"
                   >

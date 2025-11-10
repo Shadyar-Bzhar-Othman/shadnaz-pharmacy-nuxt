@@ -12,7 +12,7 @@
             <ButtonBase
               icon="ic:round-delete"
               width="sm:w-[150px]"
-              :text="t('actions.delete') + ' ' + t('models.user')"
+              :text="t('actions.delete')"
               :loading="store.loading && store.deleting"
               :disabled="store.loading"
               :canOnlyIcon="true"
@@ -22,7 +22,7 @@
             <ButtonBase
               icon="basil:edit-solid"
               width="w-[150px]"
-              :text="t('actions.edit') + ' ' + t('models.user')"
+              :text="t('actions.edit')"
               :loading="store.loading && store.editing"
               :disabled="
                 store.loading || !isFormEditFilled || !isFormEditChanged
