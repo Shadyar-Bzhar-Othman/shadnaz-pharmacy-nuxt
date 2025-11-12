@@ -57,7 +57,8 @@
     "dragAndDropOr": "اسحب وأفلت هنا أو",
     "updateProfile": "تحديث الملف الشخصي",
     "actions": "الإجراءات",
-    "send": "إرسال"
+    "send": "إرسال",
+    "sent": "تم الإرسال"
   },
   "fields": {
     "name": "الاسم",
@@ -121,7 +122,13 @@
     "maxFileSize": "الحد الأقصى لحجم الملف هو {size}",
     "main": "الرئيسي",
     "profileUpdatedSuccessfully": "تم تحديث الملف الشخصي بنجاح",
-    "loading": "جاري التحميل..."
+    "loading": "جاري التحميل...",
+    "sentBy": "تم الإرسال بواسطة {name} في {time}",
+    "sentNotifications": "الإشعارات المرسلة",
+    "totalUsers": "إجمالي المستخدمين",
+    "readNotifications": "الإشعارات المقروءة",
+    "unreadNotifications": "الإشعارات غير المقروءة",
+    "statistics": "الإحصائيات"
   },
   "models": {
     "products": "المنتجات",
@@ -161,6 +168,8 @@
     "customer": "العميل",
     "en": "الإنجليزية",
     "ar": "العربية",
-    "ckb": "الكردية"
+    "ckb": "الكردية",
+    "read": "مقروء",
+    "unread": "غير مقروء"
   }
 }

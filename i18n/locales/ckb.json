@@ -57,7 +57,8 @@
     "dragAndDropOr": "ڕاکێشە و بیگرە لێرە یان",
     "updateProfile": "نوێکردنەوەی پرۆفایل",
     "actions": "کردارەکان",
-    "send": "ناردن"
+    "send": "ناردن",
+    "sent": "نێردرا"
   },
   "fields": {
     "name": "ناو",
@@ -121,7 +122,13 @@
     "maxFileSize": "زۆرترین قەبارەی فایل {size} ـە",
     "main": "سەرەکی",
     "profileUpdatedSuccessfully": "پرۆفایل بە سەرکەوتوویی نوێکرایەوە",
-    "loading": "بارکردن..."
+    "loading": "بارکردن...",
+    "sentBy": "نێردرا لەلایەن {name} لە {time}",
+    "sentNotifications": "ئاگادارییە نێردراوەکان",
+    "totalUsers": "کۆی بەکارهێنەران",
+    "readNotifications": "ئاگاداریی خوێندراوەکان",
+    "unreadNotifications": "ئاگاداریی نەخوێندراوەکان",
+    "statistics": "ئامار"
   },
   "models": {
     "products": "بەرهەمەکان",
@@ -161,6 +168,8 @@
     "customer": "کڕیار",
     "en": "ئینگلیزی",
     "ar": "عەرەبی",
-    "ckb": "کوردی"
+    "ckb": "کوردی",
+    "read": "خوێندراو",
+    "unread": "نەخوێندراو"
   }
 }

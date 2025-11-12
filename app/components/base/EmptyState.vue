@@ -3,7 +3,7 @@
     class="w-full flex justify-center items-center"
     :style="{ marginTop: space }"
   >
-    <span class="text-sm font-normal">{{ message ?? $t("noDataFound") }}</span>
+    <span class="text-sm font-normal">{{ message ?? $t("messages.noDataAvailable") }}</span>
   </div>
 </template>
 

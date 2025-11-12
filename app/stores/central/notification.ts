@@ -5,6 +5,7 @@ import { NOTIFICATION_URL } from "~/helpers/endpoints";
 import type {
   Notification,
   NotificationForm,
+  NotificationSendForm,
 } from "~/types/others/notification";
 import type { MetaInfo, MetaResponse } from "@/types/shared/meta";
 
@@ -17,6 +18,7 @@ export const useNotificationStore = defineStore("notifications", () => {
   const currentNotification = ref<Notification | null>(null);
   const originalNotification = ref<Notification | null>(null);
 
+  const sending = ref(false);
   const creating = ref(false);
   const editing = ref(false);
   const deleting = ref(false);
@@ -27,8 +29,15 @@ export const useNotificationStore = defineStore("notifications", () => {
     message: "",
   };
 
+  const defaultSendForm: NotificationSendForm = {
+    notification_id: 0,
+    role: 1,
+  };
+
   // Pagination
   const form = ref<NotificationForm>({ ...defaultForm });
+
+  const sendForm = ref<NotificationSendForm>({ ...defaultSendForm });
 
   const paginationInfo = ref<MetaInfo>({
     currentPage: 1,
@@ -90,6 +99,10 @@ export const useNotificationStore = defineStore("notifications", () => {
     success(`${message}!`);
   }
 
+  function setNotificationSend(notification: Notification) {
+    sendForm.value.notification_id = notification.id;
+  }
+
   function setNotification(notification: Notification | null) {
     if (!notification) {
       resetForm();
@@ -105,6 +118,27 @@ export const useNotificationStore = defineStore("notifications", () => {
   }
 
   // Functions
+  async function sendNotification() {
+    loading.value = true;
+    errors.value = {};
+    sending.value = true;
+
+    const formData = createFormData(sendForm.value);
+
+    try {
+      await api.postData(`${NOTIFICATION_URL}/send`, formData);
+
+      notifySuccess("actions.sent");
+
+      resetForm();
+    } catch (e) {
+      errors.value = handleError(e);
+    } finally {
+      loading.value = false;
+      sending.value = false;
+    }
+  }
+
   async function exportNotifications() {
     isLoading.value = true;
     errors.value = {};
@@ -239,8 +273,10 @@ export const useNotificationStore = defineStore("notifications", () => {
     searchTerm,
     paginationInfo,
     form,
+    sendForm,
     loading,
     errors,
+    sending,
     creating,
     editing,
     deleting,
@@ -249,7 +285,9 @@ export const useNotificationStore = defineStore("notifications", () => {
     isFormEditFilled,
     isFormEditChanged,
     search,
+    setNotificationSend,
     setNotification,
+    sendNotification,
     exportNotifications,
     getNotifications,
     getNotification,

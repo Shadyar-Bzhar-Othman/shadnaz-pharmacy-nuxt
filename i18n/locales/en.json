@@ -57,7 +57,8 @@
     "dragAndDropOr": "Drag & drop here or",
     "updateProfile": "Update Profile",
     "actions": "Actions",
-    "send": "Send"
+    "send": "Send",
+    "sent": "Sent"
   },
   "fields": {
     "name": "Name",
@@ -121,7 +122,13 @@
     "maxFileSize": "The maximum file size is {size}",
     "main": "Main",
     "profileUpdatedSuccessfully": "Profile updated successfully",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "sentBy": "Sent by {name} at {time}",
+    "sentNotifications": "Sent Notifications",
+    "totalUsers": "Total Users",
+    "readNotifications": "Read Notifications",
+    "unreadNotifications": "Unread Notifications",
+    "statistics": "Statistics"
   },
   "models": {
     "products": "Products",
@@ -161,6 +168,8 @@
     "customer": "Customer",
     "en": "English",
     "ar": "Arabic",
-    "ckb": "Kurdish"
+    "ckb": "Kurdish",
+    "read": "Read",
+    "unread": "Unread"
   }
 }

@@ -13,6 +13,12 @@ export const useStoreDataUtils = (
     { key: 4, value: t ? t("values.customer") : "Customer" },
   ]);
 
+  const notificationRoles: ComputedRef<KeyValue<number>[]> = computed(() => [
+    { key: 1, value: t ? t("values.all") : "All" },
+    { key: 2, value: t ? t("values.driver") : "Driver" },
+    { key: 3, value: t ? t("values.customer") : "Customer" },
+  ]);
+
   const genders: ComputedRef<KeyValue<number>[]> = computed(() => [
     { key: 1, value: t ? t("values.male") : "Male" },
     { key: 2, value: t ? t("values.female") : "Female" },
@@ -27,6 +33,11 @@ export const useStoreDataUtils = (
     { key: "en", value: t ? t("values.en") : "English" },
     { key: "ar", value: t ? t("values.ar") : "Arabic" },
     { key: "ckb", value: t ? t("values.ckb") : "Kurdish" },
+  ]);
+
+  const reads: ComputedRef<KeyValue<boolean>[]> = computed(() => [
+    { key: true, value: t ? t("values.read") : "Read" },
+    { key: false, value: t ? t("values.unread") : "Unread" },
   ]);
 
   /** Generic helper: get key by label */
@@ -51,6 +62,12 @@ export const useStoreDataUtils = (
   const getRoleValue = (role: string) => getKeyByLabel(roles, role);
   const getRole = (role: number) => getLabelByKey(roles, role);
 
+  // Notification Roles
+  const getNotificationRoleValue = (role: string) =>
+    getKeyByLabel(notificationRoles, role);
+  const getNotificationRole = (role: number) =>
+    getLabelByKey(notificationRoles, role);
+
   // Genders
   const getGenderValue = (gender: string) => getKeyByLabel(genders, gender);
   const getGender = (gender: number) => getLabelByKey(genders, gender);
@@ -63,21 +80,31 @@ export const useStoreDataUtils = (
   const getLangValue = (lang: string) => getKeyByLabel(langs, lang);
   const getLang = (lang: string) => getLabelByKey(langs, lang);
 
+  // Reads
+  const getReadValue = (read: string) => getKeyByLabel(reads, read);
+  const getRead = (read: boolean) => getLabelByKey(reads, read);
+
   return {
     // Values
     roles,
+    notificationRoles,
     genders,
     actives,
     langs,
+    reads,
 
     // Functions
     getRoleValue,
     getRole,
+    getNotificationRoleValue,
+    getNotificationRole,
     getGenderValue,
     getGender,
     getActiveValue,
     getActive,
     getLangValue,
     getLang,
+    getReadValue,
+    getRead,
   };
 };

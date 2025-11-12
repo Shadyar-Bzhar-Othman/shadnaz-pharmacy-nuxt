@@ -48,7 +48,7 @@
                     icon="mingcute:send-plane-fill"
                     :text="$t('actions.send')"
                     class="w-full"
-                    @click=""
+                    @click="openNotificationSendModal(notification)"
                   />
 
                   <ButtonSquare
@@ -73,6 +73,13 @@
         />
       </template>
     </BasePageWrapper>
+
+    <!-- Form -->
+    <AppFormNotificationSend
+      v-if="isModalOpen"
+      @confirm="handleConfirm"
+      @cancel="closeModal"
+    />
   </client-only>
 </template>
 
@@ -84,12 +91,8 @@ definePageMeta({
   middleware: ["auth"],
 });
 
-// Imports
-import { formatIraqiDinar } from "@/helpers/functions";
-
 // Types
 import type { Notification } from "~/types/others/notification";
-import type { TableConfig } from "@/types/shared/data-table";
 
 // Locale
 const { t } = useI18n();
@@ -101,6 +104,7 @@ const items = ref([
 
 // Hooks
 const { navigate } = useLocalizedNavigate();
+const { isModalOpen, openModal, closeModal } = useModal();
 
 // Stores
 const notificationStore = useNotificationStore();
@@ -108,8 +112,13 @@ const notificationStore = useNotificationStore();
 const { searchTerm, paginationInfo, filteredNotifications, isEmpty } =
   storeToRefs(notificationStore);
 
-const { search, exportNotifications, getNotifications, setNotification } =
-  notificationStore;
+const {
+  search,
+  setNotificationSend,
+  exportNotifications,
+  getNotifications,
+  setNotification,
+} = notificationStore;
 
 // Lifecycle Hooks
 onActivated(() => {
@@ -137,5 +146,17 @@ const navigateToEditNotification = (notification: Notification) => {
 
 const handlePageUpdate = (page: number) => {
   fetchNotifications(page);
+};
+
+const openNotificationSendModal = (notification: Notification) => {
+  setNotificationSend(notification);
+
+  openModal();
+};
+
+const handleConfirm = async () => {
+  fetchNotifications();
+
+  closeModal();
 };
 </script>
